@@ -77,6 +77,21 @@
         # No Parameters
     ) -EntryPoint RevertToSelf -SetLastError),
     #endregion advapi32
+    #region crypt32
+    (func crypt32 CryptQueryObject ([bool]) @(
+        [UInt32],                 #_In_        DWORD      dwObjectType,
+        [string],                 #_In_  const void       *pvObject,
+        [UInt32],                 #_In_        DWORD      dwExpectedContentTypeFlags,
+        [UInt32],                 #_In_        DWORD      dwExpectedFormatTypeFlags,
+        [UInt32],                 #_In_        DWORD      dwFlags,
+        [UInt32].MakeByRefType(), #_Out_       DWORD      *pdwMsgAndCertEncodingType,
+        [UInt32].MakeByRefType(), #_Out_       DWORD      *pdwContentType,
+        [UInt32].MakeByRefType(), #_Out_       DWORD      *pdwFormatType,
+        [IntPtr],                 #_Out_       HCERTSTORE *phCertStore,
+        [IntPtr],                 #_Out_       HCRYPTMSG  *phMsg,
+        [IntPtr].MakeByRefType()  #_Out_ const void       **ppvContext
+    ) -EntryPoint CryptQueryObject -Charset Unicode -SetLastError),
+    #endregion crypt32
     #region iphlpapi
     (func iphlpapi GetIpNetTable ([Int32]) @(
         [IntPtr],                #_Out_   PMIB_IPNETTABLE pIpNetTable
@@ -116,7 +131,25 @@
         [IntPtr],                  #_In_    HANDLE    hThread
         $CONTEXT64.MakeByRefType() #_Inout_ LPCONTEXT lpContext
     ) -EntryPoint GetThreadContext -SetLastError),
-    
+
+    (func kernel32 GlobalAddAtom ([UInt16]) @(
+        [IntPtr] #_In_ LPCTSTR lpString
+    ) -EntryPoint GlobalAddAtom -SetLastError),
+
+    (func kernel32 GlobalDeleteAtom ([UInt16]) @(
+        [UInt16] #_In_ ATOM nAtom
+    ) -EntryPoint GlobalDeleteAtom -SetLastError),
+
+    (func kernel32 GlobalFindAtom ([UInt16]) @(
+        [IntPtr] #_In_ LPCTSTR lpString
+    ) -EntryPoint GlobalFindAtom -SetLastError),
+
+    (func kernel32 GlobalGetAtomName ([UInt32]) @(
+        [UInt16], #_In_  ATOM   nAtom
+        [IntPtr], #_Out_ LPTSTR lpBuffer
+        [UInt32]  #_In_  int    nSize
+    ) -EntryPoint GlobalGetAtomName -SetLastError),
+        
     (func kernel32 LoadLibrary ([IntPtr]) @(
         [string] #_In_ LPCTSTR lpFileName
     ) -EntryPoint LoadLibrary -SetLastError),
@@ -445,6 +478,10 @@
         [Bool],                 # bool IsThreadPrivilege
         [Int32].MakeByRefType() # out bool PreviousValue
     ) -EntryPoint RtlAdjustPrivilege),
+
+    (func ntdll RtlGetFunctionTableListHead ([IntPtr]) @(
+
+    ) -EntryPoint RtlGetFunctionTableListHead),
     
     (func ntdll RtlInitUnicodeString ([void]) @(
         $UNICODE_STRING.MakeByRefType(), #_Inout_  PUNICODE_STRING DestinationString
@@ -484,6 +521,19 @@
     ) -EntryPoint SamSetInformationUser)
     #endregion samlib   
     #region secur32
+    (func secur32 DeleteSecurityPackage ([UInt32]) @(
+        [string] #_In_ LPTSTR pszPackageName
+    ) -EntryPoint DeleteSecurityPackage),
+
+    (func secur32 EnumerateSecurityPackages ([UInt32]) @(
+        [UInt32].MakeByRefType(), #_In_ PULONG      pcPackages
+        [IntPtr].MakeByRefType()  #_In_ PSecPkgInfo *ppPackageInfo
+    ) -EntryPoint EnumerateSecurityPackages),
+
+    (func secur32 FreeContextBuffer ([UInt32]) @(
+          [IntPtr] #_In_ PVOID pvContextBuffer
+    ) -EntryPoint FreeContextBuffer),
+    
     (func secur32 LsaCallAuthenticationPackage ([UInt32]) @(
         [IntPtr],                 #_In_  HANDLE    LsaHandle
         [UInt64],                 #_In_  ULONG     AuthenticationPackage
@@ -640,12 +690,13 @@
 $Types = $FunctionDefinitions | Add-Win32Type -Module $Module -Namespace PSReflectFunctions
 
 $advapi32 = $Types['advapi32']
+$crypt32  = $Types['crypt32']
 $iphlpapi = $Types['iphlpapi']
 $kernel32 = $Types['kernel32']
-$mpr = $Types['Mpr']
+$mpr      = $Types['Mpr']
 $netapi32 = $Types['netapi32']
-$ntdll = $Types['ntdll']
-$samlib = $Types['samlib']
-$secur32 = $Types['secur32']
+$ntdll    = $Types['ntdll']
+$samlib   = $Types['samlib']
+$secur32  = $Types['secur32']
 $wintrust = $Types['wintrust']
 $wtsapi32 = $Types['wtsapi32']
